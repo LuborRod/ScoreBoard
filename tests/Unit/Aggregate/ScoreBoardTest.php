@@ -24,13 +24,13 @@ final class ScoreBoardTest extends TestCase
 
     public function testAddGameThrowsExceptionForDuplicate(): void
     {
-        $this->expectException(GameAlreadyExistsException::class);
-
         $scoreboard = new ScoreBoard();
         $game = new Game(new Team('Home'), new Team('Away'));
 
         $scoreboard->addGame($game);
-        $scoreboard->addGame($game);
+
+        $this->expectException(GameAlreadyExistsException::class);
+        $scoreboard->addGame(clone $game);
     }
 
     public function testRemoveGame(): void

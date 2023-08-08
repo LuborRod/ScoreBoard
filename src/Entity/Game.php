@@ -4,7 +4,7 @@ namespace src\Entity;
 
 use src\Exceptions\GameAlreadyFinishedException;
 use src\Exceptions\GameAlreadyStartedException;
-use src\VO\Score;
+use src\ValueObject\Score;
 
 final class Game
 {

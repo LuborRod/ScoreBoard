@@ -2,17 +2,17 @@
 
 namespace src\Aggregate;
 
-use SplObjectStorage;
 use src\Entity\Game;
 use src\Exceptions\GameAlreadyExistsException;
+use src\Storage\GameStorage;
 
 final class ScoreBoard
 {
-    private SplObjectStorage $games;
+    private GameStorage $games;
 
     public function __construct()
     {
-        $this->games = new SplObjectStorage();
+        $this->games = new GameStorage();
     }
 
     /**
