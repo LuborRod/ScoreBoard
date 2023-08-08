@@ -6,7 +6,7 @@ use src\Entity\Game;
 use src\Entity\Team;
 use src\Exceptions\GameAlreadyFinishedException;
 use src\Exceptions\GameAlreadyStartedException;
-use src\VO\Score;
+use src\ValueObject\Score;
 use src\Exceptions\GameNotFoundException;
 use PHPUnit\Framework\TestCase;
 

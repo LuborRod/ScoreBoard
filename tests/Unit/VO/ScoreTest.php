@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\VO;
+namespace Tests\ValueObject;
 
-use src\VO\Score;
+use src\ValueObject\Score;
 use PHPUnit\Framework\TestCase;
 
 class ScoreTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace src\VO;
+namespace src\ValueObject;
 
 readonly final class Score
 {

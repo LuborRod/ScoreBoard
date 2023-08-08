@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use src\Aggregate\ScoreBoard;
 use src\Entity\Game;
 use src\Entity\Team;
-use src\VO\Score;
+use src\ValueObject\Score;
 use src\Exceptions\GameAlreadyExistsException;
 
 final class ScoreBoardTest extends TestCase
