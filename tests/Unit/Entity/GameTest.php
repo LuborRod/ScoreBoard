@@ -4,6 +4,8 @@ namespace Tests\Entity;
 
 use src\Entity\Game;
 use src\Entity\Team;
+use src\Exceptions\GameAlreadyFinishedException;
+use src\Exceptions\GameAlreadyStartedException;
 use src\VO\Score;
 use src\Exceptions\GameNotFoundException;
 use PHPUnit\Framework\TestCase;
@@ -70,6 +72,34 @@ class GameTest extends TestCase
     public function testGetAwayTeam(): void
     {
         $this->assertSame($this->teamB, $this->game->getAwayTeam());
+    }
+
+    public function testGameCannotStartTwice(): void
+    {
+        $this->expectException(GameAlreadyStartedException::class);
+
+        $game = new Game(new Team('Home'), new Team('Away'));
+        $game->start();
+        $game->start();
+    }
+
+    public function testGameCannotFinishTwice(): void
+    {
+        $this->expectException(GameAlreadyFinishedException::class);
+
+        $game = new Game(new Team('Home'), new Team('Away'));
+        $game->finish();
+        $game->finish();
+    }
+
+    public function testGameCannotUpdateScoreAfterFinish(): void
+    {
+        $this->expectException(GameAlreadyFinishedException::class);
+
+        $game = new Game(new Team('Home'), new Team('Away'));
+        $game->start();
+        $game->finish();
+        $game->updateScore(new Score(3, 4));
     }
 }
 

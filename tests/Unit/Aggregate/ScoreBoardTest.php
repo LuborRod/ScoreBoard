@@ -1,86 +1,66 @@
 <?php
 
-namespace Tests\Aggregate;
+namespace tests\Aggregate;
 
+use PHPUnit\Framework\TestCase;
 use src\Aggregate\ScoreBoard;
 use src\Entity\Game;
 use src\Entity\Team;
 use src\VO\Score;
 use src\Exceptions\GameAlreadyExistsException;
-use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \src\Aggregate\ScoreBoard
- */
-class ScoreBoardTest extends TestCase
+final class ScoreBoardTest extends TestCase
 {
-    private ScoreBoard $scoreBoard;
-
-    protected function setUp(): void
-    {
-        $this->scoreBoard = new ScoreBoard();
-    }
-
     public function testAddGame(): void
     {
-        $team1 = new Team('Team A');
-        $team2 = new Team('Team B');
-        $game = new Game($team1, $team2);
+        $scoreboard = new ScoreBoard();
+        $game = new Game(new Team('Home'), new Team('Away'));
 
-        $this->scoreBoard->addGame($game);
+        $scoreboard->addGame($game);
 
-        $summary = $this->scoreBoard->getSummary();
-        $this->assertCount(1, $summary);
-        $this->assertSame($game, $summary->first());
+        $summary = $scoreboard->getSummary();
+        $this->assertContains($game, $summary);
     }
 
-    public function testAddGameThrowsExceptionForDuplicateGame(): void
+    public function testAddGameThrowsExceptionForDuplicate(): void
     {
-        $team1 = new Team('Team A');
-        $team2 = new Team('Team B');
-        $game = new Game($team1, $team2);
-
-        $this->scoreBoard->addGame($game);
-
         $this->expectException(GameAlreadyExistsException::class);
 
-        $this->scoreBoard->addGame($game);
+        $scoreboard = new ScoreBoard();
+        $game = new Game(new Team('Home'), new Team('Away'));
+
+        $scoreboard->addGame($game);
+        $scoreboard->addGame($game);
     }
 
     public function testRemoveGame(): void
     {
-        $team1 = new Team('Team A');
-        $team2 = new Team('Team B');
-        $game = new Game($team1, $team2);
+        $scoreboard = new ScoreBoard();
+        $game = new Game(new Team('Home'), new Team('Away'));
 
-        $this->scoreBoard->addGame($game);
-        $this->scoreBoard->removeGame($game);
+        $scoreboard->addGame($game);
+        $scoreboard->removeGame($game);
 
-        $summary = $this->scoreBoard->getSummary();
-        $this->assertCount(0, $summary);
+        $summary = $scoreboard->getSummary();
+        $this->assertNotContains($game, $summary);
     }
 
-    public function testGetSummarySortsGamesByTotalScoreDesc(): void
+    public function testGetSummary(): void
     {
-        $team1 = new Team('Team A');
-        $team2 = new Team('Team B');
-        $team3 = new Team('Team C');
-        $team4 = new Team('Team D');
+        $scoreboard = new ScoreBoard();
+        $game1 = new Game(new Team('Home1'), new Team('Away1'));
+        $game1->start();
+        $game1->updateScore(new Score(1, 2));
 
-        $game1 = new Game($team1, $team2);
-        $game1->updateScore(new Score(1, 0));
+        $game2 = new Game(new Team('Home2'), new Team('Away2'));
+        $game2->start();
+        $game2->updateScore(new Score(3, 4));
 
-        $game2 = new Game($team3, $team4);
-        $game2->updateScore(new Score(2, 2));
+        $scoreboard->addGame($game1);
+        $scoreboard->addGame($game2);
 
-        $this->scoreBoard->addGame($game1);
-        $this->scoreBoard->addGame($game2);
-
-        $summary = $this->scoreBoard->getSummary();
-
-        $this->assertCount(2, $summary);
-        $this->assertSame($game2, $summary->first());
-        $this->assertSame($game1, $summary->last());
+        $summary = $scoreboard->getSummary();
+        $this->assertSame($game2, $summary[0]);
+        $this->assertSame($game1, $summary[1]);
     }
 }
-

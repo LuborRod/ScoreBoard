@@ -1,22 +1,25 @@
 <?php
 
-namespace Tests\Entity;
+namespace tests\Entity;
 
-use src\Entity\Team;
 use PHPUnit\Framework\TestCase;
+use src\Entity\Team;
 
-class TeamTest extends TestCase
+final class TeamTest extends TestCase
 {
-    private Team $team;
-
-    protected function setUp(): void
+    public function testTeamEquality(): void
     {
-        $this->team = new Team('Team A');
+        $team1 = new Team('Test');
+        $team2 = new Team('Test');
+        $team3 = new Team('Other');
+
+        $this->assertTrue($team1->equals($team2));
+        $this->assertFalse($team1->equals($team3));
     }
 
-    public function testGetName(): void
+    public function testToString(): void
     {
-        $this->assertEquals('Team A', $this->team->getName());
+        $team = new Team('Test');
+        $this->assertEquals('Test', (string) $team);
     }
 }
-

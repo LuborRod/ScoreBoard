@@ -2,42 +2,49 @@
 
 namespace src\Entity;
 
-use src\Exceptions\GameNotFoundException;
+use src\Exceptions\GameAlreadyFinishedException;
+use src\Exceptions\GameAlreadyStartedException;
 use src\VO\Score;
 
 final class Game
 {
-    private Team $homeTeam;
-    private Team $awayTeam;
     private Score $score;
     private bool $started;
     private bool $finished;
 
-    public function __construct(Team $homeTeam, Team $awayTeam)
+    public function __construct(private readonly Team $homeTeam, private readonly Team $awayTeam)
     {
-        $this->homeTeam = $homeTeam;
-        $this->awayTeam = $awayTeam;
         $this->score = new Score(0, 0);
         $this->started = false;
         $this->finished = false;
     }
 
+    /**
+     * @throws GameAlreadyStartedException
+     */
     public function start(): void {
+        $this->validateStart();
         $this->started = true;
     }
 
+    /**
+     * @throws GameAlreadyFinishedException
+     */
     public function finish(): void {
+        $this->validateFinish();
         $this->finished = true;
     }
 
+
     /**
-     * @throws GameNotFoundException
+     * @throws GameAlreadyStartedException
+     * @throws GameAlreadyFinishedException
      */
     public function updateScore(Score $score): void
     {
-        if (!$this->started || $this->finished) {
-            throw new GameNotFoundException("Can't update score of a game that hasn't started or is already finished.");
-        }
+        //TODO The next step we can validate data in Score (we can't decrease score -> only increase).
+        $this->validateStart();
+        $this->validateFinish();
         $this->score = $score;
     }
 
@@ -64,5 +71,30 @@ final class Game
     public function isFinished(): bool
     {
         return $this->finished;
+    }
+
+    public function equals(Game $game): bool
+    {
+        return $this->homeTeam->equals($game->getHomeTeam()) && $this->awayTeam->equals($game->getAwayTeam());
+    }
+
+    /**
+     * @throws GameAlreadyStartedException
+     */
+    private function validateStart(): void
+    {
+        if ($this->started) {
+            throw new GameAlreadyStartedException("The game has already started.");
+        }
+    }
+
+    /**
+     * @throws GameAlreadyFinishedException
+     */
+    private function validateFinish(): void
+    {
+        if ($this->started) {
+            throw new GameAlreadyFinishedException("The game has already finished.");
+        }
     }
 }

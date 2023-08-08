@@ -2,7 +2,7 @@
 
 namespace src\VO;
 
-final class Score
+readonly final class Score
 {
     public function __construct(private int $home, private int $away)
     {}
@@ -16,6 +16,7 @@ final class Score
     {
         return $this->away;
     }
+
     public function getTotalScore(): int
     {
         return $this->home + $this->away;

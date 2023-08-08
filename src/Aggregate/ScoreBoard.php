@@ -2,17 +2,17 @@
 
 namespace src\Aggregate;
 
-use Illuminate\Support\Collection;
+use SplObjectStorage;
 use src\Entity\Game;
 use src\Exceptions\GameAlreadyExistsException;
 
 final class ScoreBoard
 {
-    private Collection $games;
+    private SplObjectStorage $games;
 
     public function __construct()
     {
-        $this->games = new Collection();
+        $this->games = new SplObjectStorage();
     }
 
     /**
@@ -22,33 +22,33 @@ final class ScoreBoard
     {
         if ($this->gameExists($game)) {
             throw new GameAlreadyExistsException(
-                "The game between {$game->getHomeTeam()->getName()} and {$game->getAwayTeam()->getName()} already exists on the scoreboard."
+                sprintf("The game between %s and %s already exists on the scoreboard.",
+                    $game->getHomeTeam()->getName(),
+                    $game->getAwayTeam()->getName()
+                )
             );
         }
 
-        $this->games->push($game);
+        $this->games->attach($game);
     }
-
 
     public function removeGame(Game $game): void
     {
-        $this->games = $this->games->reject(function ($g) use ($game) {
-            return $g === $game;
-        });
+        $this->games->detach($game);
     }
 
-    public function getSummary(): Collection
+    public function getSummary(): array
     {
-        return $this->games->sortByDesc(function (Game $game) {
-            return $game->getScore()->getTotalScore();
+        $gamesArray = iterator_to_array($this->games);
+        usort($gamesArray, function (Game $a, Game $b) {
+            return $b->getScore()->getTotalScore() <=> $a->getScore()->getTotalScore();
         });
+
+        return $gamesArray;
     }
 
     private function gameExists(Game $game): bool
     {
-        return $this->games->contains(function ($g) use ($game) {
-            return $g->getHomeTeam() === $game->getHomeTeam() && $g->getAwayTeam() === $game->getAwayTeam();
-        });
+        return $this->games->contains($game);
     }
 }
-
